@@ -73,7 +73,7 @@ public class HistorySQL
     public void GetUserHistory(StreamWriter writer, List<History> userHistoryList, string connectionString, string userToken)
     {
         string queryString =
-            "SELECT Count, Duration FROM PushUpRecords JOIN Users ON PushUpRecords.UserID = Users.user_id WHERE Users.userToken = @userToken ORDER BY PushUpRecords.Timestamp DESC;";
+            "SELECT Count, Duration, user_id FROM PushUpRecords JOIN Users ON PushUpRecords.UserID = Users.user_id WHERE Users.userToken = @userToken ORDER BY PushUpRecords.Timestamp DESC;";
         using (var connection = new NpgsqlConnection(connectionString))
         {
             connection.Open();
@@ -88,7 +88,7 @@ public class HistorySQL
                         {
                             History userHistory = new History
                             {
-                                //UserId = reader.GetInt32(reader.GetOrdinal("user_id")),
+                                UserId = reader.GetInt32(reader.GetOrdinal("user_id")),
                                 Count = reader.GetInt32(reader.GetOrdinal("Count")),
                                 DurationInSeconds = reader.GetInt32(reader.GetOrdinal("Duration"))
                             };

@@ -42,6 +42,7 @@ public class SessionSQL
                 catch (Exception ex)
                 {
                     Console.WriteLine("Error in DatabaseLogin: " + ex.Message);
+                    throw;
                 }
             }
         }

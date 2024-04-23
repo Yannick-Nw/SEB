@@ -10,12 +10,12 @@ public class SessionSQLTests
 {
     private Mock<NpgsqlConnection> _connectionMock;
     private SessionSQL _sessionSQL;
-    private string _connectionString = "YourConnectionString";
+    private string _connectionString = "Host=localhost;Database=sebdb;Username=user;Password=seb-password";
 
     [SetUp]
     public void Setup()
     {
-        _connectionMock = new Mock<NpgsqlConnection>(_connectionString);
+        //_connectionMock = new Mock<NpgsqlConnection>(_connectionString);
         _sessionSQL = new SessionSQL();
     }
 
@@ -25,8 +25,8 @@ public class SessionSQLTests
         // Arrange
         var userDataCredentials = new UserCredentials
         {
-            Username = "ValidUsername",
-            Password = "ValidPassword"
+            Username = "kienboec",
+            Password = "daniel"
         };
 
         // Act

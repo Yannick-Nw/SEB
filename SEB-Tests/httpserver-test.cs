@@ -14,8 +14,8 @@ namespace SEB.httpServer.tests
         [SetUp]
         public void Setup()
         {
-            _httpServer = new HttpServer(8080);
-            _serverThread = new Thread(() => _httpServer.Start("TestConnectionString"));
+            _httpServer = new HttpServer(10001);
+            _serverThread = new Thread(() => _httpServer.Start("Host=localhost;Database=sebdb;Username=user;Password=seb-password"));
             _serverThread.Start();
         }
 
@@ -26,11 +26,11 @@ namespace SEB.httpServer.tests
             Thread.Sleep(1000);
 
             // Check if the server is listening
-            using (TcpClient client = new TcpClient("localhost", 8080))
+            using (TcpClient client = new TcpClient("localhost", 10001))
             {
                 Assert.IsTrue(client.Connected);
             }
-
+            
             // Stop the server
             _httpServer.Stop();
 
@@ -40,7 +40,7 @@ namespace SEB.httpServer.tests
             // Check if the server has stopped
             Assert.Throws<SocketException>(() =>
             {
-                TcpClient client = new TcpClient("localhost", 8080);
+                TcpClient client = new TcpClient("localhost", 10001);
             });
         }
 

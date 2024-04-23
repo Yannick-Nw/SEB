@@ -24,6 +24,7 @@ public class StatsSQL
                     {
                         if (reader.Read())
                         {
+                            userStats.UserName = reader.GetInt32(reader.GetOrdinal("user_id"));
                             userStats.UserElo = reader.GetInt32(reader.GetOrdinal("userELO"));
                             userStats.TotalPushups = reader.GetInt32(reader.GetOrdinal("TotalPushups"));
                             string jsonString = JsonSerializer.Serialize(userStats);
@@ -47,11 +48,11 @@ public class StatsSQL
         }
     }
 
-    public void UpdateUserStats(string winnerUserName, int tournamentID, string connectionString)
+    public void UpdateUserStats(int winnerUserName, int tournamentID, string connectionString)
     {
-        string updateWinnerQuery = "UPDATE Users SET userELO = userELO + 2 WHERE username = @winnerUserName";
+        string updateWinnerQuery = "UPDATE Users SET userELO = userELO + 2 WHERE user_id = @winnerUserID";
         string updateLosersQuery =
-            "UPDATE Users SET userELO = userELO - 1 WHERE user_id IN (SELECT UserID FROM TournamentEntries WHERE TournamentID = @tournamentID AND UserID != @winnerUserID)";
+            "UPDATE Users SET userELO = userELO - 1 WHERE user_id IN (SELECT UserID FROM TournamentEntries WHERE TournamentID = @tournamentID AND tournamententries.userid != @winnerUserID)";
 
         using (var connection = new NpgsqlConnection(connectionString))
         {
@@ -61,6 +62,7 @@ public class StatsSQL
             {
                 // Add parameters to the query
                 cmd.Parameters.AddWithValue("winnerUserID", winnerUserName);
+                cmd.Parameters.AddWithValue("tournamentID", tournamentID);
                 try
                 {
                     cmd.ExecuteNonQuery();
@@ -71,7 +73,7 @@ public class StatsSQL
                     throw;
                 }
             }
-
+            
             using (var cmd = new NpgsqlCommand(updateLosersQuery, connection))
             {
                 // Add parameters to the query

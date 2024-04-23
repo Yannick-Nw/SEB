@@ -7,15 +7,18 @@ public class TournamentSQL
 {
     public int CreateTournament(string connectionString)
     {
+        DateTime startTime = DateTime.Now;
+        DateTime endTime = startTime.AddMinutes(2);
         using (NpgsqlConnection connection = new NpgsqlConnection(connectionString))
         {
             connection.Open();
 
             string queryString =
-                "SELECT TournamentID FROM Tournaments WHERE CURRENT_TIMESTAMP BETWEEN StartTime AND EndTime";
+                "SELECT TournamentID FROM Tournaments WHERE @StartTime BETWEEN StartTime AND EndTime";
             // Check if a tournament is currently running
             using (NpgsqlCommand command = new NpgsqlCommand(queryString, connection))
             {
+                command.Parameters.AddWithValue("@StartTime", startTime);
                 using (NpgsqlDataReader reader = command.ExecuteReader())
                 {
                     if (reader.Read())
@@ -31,9 +34,8 @@ public class TournamentSQL
                 }
             }
 
+
             // If no tournament is running, create a new one
-            DateTime startTime = DateTime.Now;
-            DateTime endTime = startTime.AddMinutes(2);
 
             queryString =
                 "INSERT INTO Tournaments (StartTime, EndTime) VALUES (@StartTime, @EndTime) RETURNING tournamentid";
@@ -78,8 +80,8 @@ public class TournamentSQL
             @"SELECT 
                 Tournaments.TournamentID,
                     Tournaments.StartTime, 
-                    COUNT(TournamentEntries.EntryID) as Participants, 
-                    Users.username as Leader,
+                    COUNT(TournamentEntries.EntryID) as Participants,
+                    Users.user_id as Leader,
                     SUM(PushUpRecords.Count) as TotalPushUps
                 FROM 
                     Tournaments 
@@ -97,7 +99,7 @@ public class TournamentSQL
                 GROUP BY 
                 Tournaments.TournamentID,
                     Tournaments.StartTime, 
-                    Users.username 
+                    Users.user_id 
                 ORDER BY 
                     SUM(PushUpRecords.Count) DESC 
                 LIMIT 1;";
@@ -121,7 +123,7 @@ public class TournamentSQL
                             }
 
                             tournamentState.Participants = reader.GetInt32(reader.GetOrdinal("Participants"));
-                            tournamentState.Leader = reader.GetString(reader.GetOrdinal("Leader"));
+                            tournamentState.Leader = reader.GetInt32(reader.GetOrdinal("Leader"));
                             tournamentState.TotalPushUps = reader.GetInt32(reader.GetOrdinal("TotalPushUps"));
                             tournamentState.TournamentId = reader.GetInt32(reader.GetOrdinal("TournamentID"));
                         }

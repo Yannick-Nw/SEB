@@ -1,3 +1,4 @@
+using System.Text;
 using SEB.main.httpServer.request.handlers;
 
 [TestFixture]
@@ -6,7 +7,7 @@ public class DeleteRequestHandlerTests
     private DeleteRequestHandler _handler;
     private MemoryStream _memoryStream;
     private StreamWriter writer;
-    private string _connectionString = "YourConnectionStringHere";
+    private string _connectionString = "Host=localhost;Database=sebdb;Username=user;Password=seb-password";
 
     [SetUp]
     public void Setup()
@@ -47,9 +48,12 @@ public class DeleteRequestHandlerTests
 
         // Act
         _handler.DeleteRequest(writer, data, route, _connectionString);
+        writer.Flush();
+
+        string result = Encoding.UTF8.GetString(_memoryStream.ToArray());
 
         // Assert
-        Assert.IsTrue(writer.ToString().Contains("Wrong user"));
+        Assert.IsTrue(result.Contains("Wrong user"));
     }
 
     [Test]
@@ -61,8 +65,11 @@ public class DeleteRequestHandlerTests
 
         // Act
         _handler.DeleteRequest(writer, data, route, _connectionString);
+        writer.Flush();
+
+        string result = Encoding.UTF8.GetString(_memoryStream.ToArray());
 
         // Assert
-        Assert.IsTrue(writer.ToString().Contains("Route does not exist"));
+        Assert.IsTrue(result.Contains("Route does not exist"));
     }
 }

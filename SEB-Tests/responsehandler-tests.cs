@@ -7,15 +7,15 @@ using SEB.httpServer.response;
 public class ResponseHandlerTests
 {
     private ResponseHandler _responseHandler;
-    private StringWriter _stringWriter;
+    private MemoryStream _memoryStream;
     private StreamWriter _streamWriter;
 
     [SetUp]
     public void SetUp()
     {
         _responseHandler = new ResponseHandler();
-        _stringWriter = new StreamWriter();
-        _streamWriter = new StreamWriter(_stringWriter);
+        _memoryStream = new MemoryStream();
+        _streamWriter = new StreamWriter(_memoryStream);
     }
 
     [Test]
@@ -25,6 +25,7 @@ public class ResponseHandlerTests
         int code = 200;
 
         _responseHandler.SendPlaintextResponse(_streamWriter, content, code);
+        _streamWriter.Flush();
 
         string expectedResponse = $"HTTP/1.1 {code} OK\r\n" +
                                   $"Content-Type: text/plain\r\n" +
@@ -32,13 +33,58 @@ public class ResponseHandlerTests
                                   "\r\n" +
                                   $"{content}";
 
-        Assert.AreEqual(expectedResponse, _stringWriter.ToString());
+        string actualResponse = Encoding.UTF8.GetString(_memoryStream.ToArray());
+
+        Assert.AreEqual(expectedResponse, actualResponse);
     }
+    
+    /*
+    [Test]
+    public void SendJsonResponse_WritesExpectedResponse()
+    {
+        string content = "{\"message\":\"Hello, World!\"}";
+        int code = 200;
+
+        _responseHandler.SendJsonResponse(_streamWriter, content, code);
+        _streamWriter.Flush();
+
+        string expectedResponse = $"HTTP/1.1 {code} OK\r\n" +
+                                  $"Content-Type: application/json\r\n" +
+                                  $"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n" +
+                                  "\r\n" +
+                                  $"{content}";
+
+        string actualResponse = Encoding.UTF8.GetString(_memoryStream.ToArray());
+
+        Assert.AreEqual(expectedResponse, actualResponse);
+    }
+
+    [Test]
+    public void SendErrorResponse_WritesExpectedResponse()
+    {
+        string content = "Error occurred";
+        int code = 404;
+
+        _responseHandler.SendErrorResponse(_streamWriter, content, code);
+        _streamWriter.Flush();
+
+        string expectedResponse = $"HTTP/1.1 {code} ERR\r\n" +
+                                  $"Content-Type: text/plain\r\n" +
+                                  $"Content-Length: {Encoding.UTF8.GetByteCount(content)}\r\n" +
+                                  "\r\n" +
+                                  $"{content}";
+
+        string actualResponse = Encoding.UTF8.GetString(_memoryStream.ToArray());
+
+        Assert.AreEqual(expectedResponse, actualResponse);
+    }
+    */
+
 
     [TearDown]
     public void TearDown()
     {
         _streamWriter.Close();
-        _stringWriter.Close();
+        _memoryStream.Close();
     }
 }

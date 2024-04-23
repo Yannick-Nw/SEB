@@ -10,18 +10,7 @@ internal class GetRequestHandler
     public void GetRequest(TcpClient client, StreamWriter writer, string data, string path, string
         connectionString)
     {
-        Tournament tournamentdatalookup = new Tournament();
-        TournamentSQL executelookup = new TournamentSQL();
-        executelookup.GetCurrentTournamentState(tournamentdatalookup, connectionString, 2);
-
-        if ((DateTime.Now - tournamentdatalookup.StartTime).TotalMinutes > 2)
-        {
-            Console.WriteLine("The Tournament finished more than 2 minutes ago");
-            StatsSQL execute = new StatsSQL();
-            execute.UpdateUserStats(tournamentdatalookup.Leader, tournamentdatalookup.TournamentId, connectionString);
-            return;
-        }
-
+        
         string[] route = path.Split("/");
 
         if (route[1] == "users")
@@ -67,6 +56,18 @@ internal class GetRequestHandler
         }
         else if (route[1] == "tournament")
         {
+            Tournament tournamentdatalookup = new Tournament();
+            TournamentSQL executelookup = new TournamentSQL();
+            executelookup.GetCurrentTournamentState(tournamentdatalookup, connectionString, 2);
+
+            if ((DateTime.Now - tournamentdatalookup.StartTime).TotalMinutes > 2)
+            {
+                Console.WriteLine("The Tournament finished more than 2 minutes ago");
+                StatsSQL executeT = new StatsSQL();
+                executeT.UpdateUserStats(tournamentdatalookup.Leader, tournamentdatalookup.TournamentId,
+                    connectionString);
+            }
+            
             Console.WriteLine("Path: Tournament");
             Tournament tournamentdata = new Tournament();
             TournamentSQL execute = new TournamentSQL();

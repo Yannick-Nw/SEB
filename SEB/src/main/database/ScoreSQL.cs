@@ -10,7 +10,7 @@ public class ScoreSQL
     public void GetAllUserStats(StreamWriter writer, List<UserStats> userStatsList, string connectionString)
     {
         string queryString =
-            "SELECT username, userELO, SUM(Count) as TotalPushups FROM Users JOIN PushUpRecords ON Users.user_id = PushUpRecords.UserID GROUP BY Users.user_id, username, userELO ORDER BY userELO DESC, TotalPushups DESC;";
+            "SELECT Users.user_id, userELO, SUM(Count) as TotalPushups FROM Users JOIN PushUpRecords ON Users.user_id = PushUpRecords.UserID GROUP BY Users.user_id, username, userELO ORDER BY userELO DESC, TotalPushups DESC;";
         using (var connection = new NpgsqlConnection(connectionString))
         {
             connection.Open();
@@ -24,7 +24,7 @@ public class ScoreSQL
                         {
                             UserStats userStat = new UserStats
                             {
-                                UserName = reader.GetString(reader.GetOrdinal("username")),
+                                UserName = reader.GetInt32(reader.GetOrdinal("user_id")),
                                 UserElo = reader.GetInt32(reader.GetOrdinal("userELO")),
                                 TotalPushups = reader.GetInt32(reader.GetOrdinal("TotalPushups"))
                             };

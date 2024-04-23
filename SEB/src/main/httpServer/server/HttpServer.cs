@@ -33,10 +33,12 @@ namespace SEB.httpServer.server
 
             while (listening)
             {
-                Console.WriteLine("Waiting for incoming connections...");
-
-                TcpClient client = _listener.AcceptTcpClient();
-                new Thread(() => HandleClient(client, buffer)).Start();
+                if (_listener.Pending())
+                {
+                    Console.WriteLine("Waiting for incoming connections...");
+                    TcpClient client = _listener.AcceptTcpClient();
+                    new Thread(() => HandleClient(client, buffer)).Start();
+                }
             }
         }
 
@@ -62,6 +64,8 @@ namespace SEB.httpServer.server
 
         public void Stop()
         {
+            listening = false;
+
             _listener.Stop();
 
             Console.WriteLine("Server stopped");
